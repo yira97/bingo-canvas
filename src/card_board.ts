@@ -28,11 +28,11 @@ export class CardBoard {
   }
 
   get_call(n: number) {
-    console.log(`收到报球: ${n}`)
     this._called.push(n)
-    if (this._card.i(n)) {
+    if (this._card.i(n) !== undefined) {
       this._daub.push(n)
     }
+    
   }
 
   daub(y: number, x: number) {
@@ -77,8 +77,7 @@ export class CardBoard {
     ctx.beginPath();
     this._daub.forEach(daub_n => {
       const i = this._card.i(daub_n)
-      console.log(i)
-      if (!i) return
+      if (i === undefined) return
       const card_pos = this._card.pos(i)
       const real_pos = {
         x: pos.x + card_pos.x * cell_width,

@@ -59,6 +59,9 @@ export class Card {
       if (n === this._card[i]) {
         find = true
         idx = i
+        if (i ===0) {
+        }
+        break;
       }
     }
     return find ? idx : undefined

@@ -1,4 +1,4 @@
-import { Ball, BallGenerator, seq_ball, BallGenerateConfig, shuffle_ball } from "./ball";
+import { Ball, BallGenerator, BallGenerateConfig, shuffle_ball } from "./ball";
 import { Point, find_inner_margin } from './point'
 import { BALL_NUM_IN_BOARD, BALL_COUNT } from './constant'
 
