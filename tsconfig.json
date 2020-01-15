@@ -20,6 +20,6 @@
     "jsx": "react"
   },
   "include": [
-    "src"
+    "src", "test/card.test.ts", "test/ball.test.ts", "test/util.test.ts"
   ]
 }
