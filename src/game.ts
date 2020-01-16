@@ -87,8 +87,8 @@ export class Game {
     for (let i = 0; i < this._card.length; i++) {
       let cell = base
       let remain = this._width - (this._card.length * cell)
-      let margin = remain / 2
-      let in_margin = remain / 2 / (this._card.length - 1)
+      let margin = remain / 3
+      let in_margin = remain / 1.5 / (this._card.length - 1)
 
       this._card[i].draw(ctx, { x: margin / 2 + (cell * i + i * in_margin), y: base }, cell)
     }

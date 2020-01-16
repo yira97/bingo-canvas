@@ -1,59 +1,69 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useInterval } from './hooks/useInterval';
 import { Game, GameCommand } from './game'
 import * as cfg from './config'
+import { useEventListener } from './hooks/useEventListener';
 
-enum FullScreen {
-  true,
-}
 
-const init_main_plot = (canva: HTMLCanvasElement, fullscreen: FullScreen) => {
-  const bd = document.querySelector('body')
-  let width = cfg.DEFAULT_MAIN_PLOT_WIDTH
-  let height = cfg.DEFAULT_MAIN_PLOT_HEIGHT
-  if (fullscreen === FullScreen.true && bd !== null) {
-    height = bd.clientHeight
-    width = bd.clientWidth
-  }
-  canva.height = height
-  canva.width = width
-  return [width, height]
-}
 
-const clear_main_plot = (ctx: CanvasRenderingContext2D) => {
-  ctx.clearRect(0, 0, cfg.DEFAULT_MAIN_PLOT_HEIGHT, cfg.DEFAULT_MAIN_PLOT_HEIGHT)
-}
+
 
 function App() {
-  const mainPlot = React.useRef<HTMLCanvasElement>(null)
-  const game = useMemo(() => new Game(), [])
+  const main_canva = React.useRef<HTMLCanvasElement>(null)
+  const canvasize = React.useRef({ w: 0, h: 0 }).current
+  const game = React.useRef(new Game()).current
   const [game_frame, set_game_frame] = useState(0)
+
+  const init_main_plot = (canva: HTMLCanvasElement) => {
+    const bd = document.querySelector('body')
+    if (bd === null) return
+    let height = bd.clientHeight
+    let width = bd.clientWidth
+    canva.height = height
+    canva.width = width
+    game.set_size(width, height)
+    canvasize.w = width
+    canvasize.h = height
+    console.log(`初始化canvas`)
+  }
+
+  const clear_main_plot = (ctx: CanvasRenderingContext2D) => {
+    ctx.clearRect(0, 0, canvasize.w, canvasize.h)
+  }
 
   useInterval(() => {
     game.tick()
     set_game_frame(game_frame + 1)
-  }, cfg.BALLCALL_SEC)
+  }, cfg.REDRAW_INTERVAL)
+
+  const clickhandle = useCallback((e: MouseEvent) => {
+    console.log(e.clientX)
+    console.log(e.clientY)
+  }, [])
+  useEventListener<MouseEvent>('click', clickhandle)
 
   useEffect(() => {
-    let canva = mainPlot.current
+    let canva = main_canva.current
     if (!canva) return
-    const [width, height] = init_main_plot(canva, FullScreen.true)
-    game.set_size(width, height)
+    if (canvasize.h === 0) {
+      init_main_plot(canva)
+      return
+    }
     let ctx = canva.getContext('2d')
     if (!ctx) return
     clear_main_plot(ctx)
     game.draw(ctx)
-  }, [game_frame, game])
+  }, [game_frame])
 
   return (
     <>
+      <div className='app' style={{ height: "100vh" }}>
+        <canvas id='main' ref={main_canva} ></canvas>
+      </div>
       <div>
         <button onClick={() => game.send(GameCommand.START)}>启动</button>
         <button onClick={() => game.send(GameCommand.STOP)}> 停止</button>
         <button onClick={() => game.send(GameCommand.RESET)}>重置</button>
-      </div>
-      <div className='app' style={{ height: "100vh" }}>
-        <canvas id='main' ref={mainPlot} ></canvas>
       </div>
     </>
   );
